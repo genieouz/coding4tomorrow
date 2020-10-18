@@ -1,0 +1,1 @@
+export const databaseConnectionName: string = "clavem-database-connection";
