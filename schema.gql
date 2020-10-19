@@ -3,88 +3,30 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
-input AccessCodeDto {
-  username: String!
-  password: String!
-  role: AccessCodeRole!
-}
-
-type AccessCodeEntity {
-  _id: ID!
-  organizer: UserEntity!
-  username: String!
-  password: String!
-  role: AccessCodeRole!
-}
-
-enum AccessCodeRole {
-  ADMIN
-  EDITOR
-  PARTICIPANTS_MANAGER
-  OBSERVER
-}
-
-type AccessCodesEntity {
-  recordsLength: Float!
-  totalRecords: Float!
-  offset: Float!
-  limit: Float!
-  pages: Float!
-  currentPage: Float!
-  records: [AccessCodeEntity!]!
-}
-
 """Arbitrary object"""
 scalar Any
 
-type AttachmentRecord {
+type Book {
   id: ID!
-  sizeB: Int!
-  extension: String!
+  description: String
+  title: String!
+  author: String!
+  publicationDate: DateTime!
+  type: BookType!
+  cover: ImageSizes
 }
 
-type CardEntity {
-  _id: ID!
-  number: String!
-  owner: UserEntity!
+input BookInput {
+  description: String
+  title: String!
+  author: String!
+  publicationDate: DateTime!
+  type: BookType!
 }
 
-type CardsEntity {
-  recordsLength: Float!
-  totalRecords: Float!
-  offset: Float!
-  limit: Float!
-  pages: Float!
-  currentPage: Float!
-  records: [CardEntity!]!
-}
-
-type CategoriesEntity {
-  recordsLength: Float!
-  totalRecords: Float!
-  offset: Float!
-  limit: Float!
-  pages: Float!
-  currentPage: Float!
-  records: [CategoryEntity!]!
-}
-
-type CategoryEntity {
-  _id: ID!
-  name: String!
-  refused: Float!
-  validated: Float!
-  blocked: Float!
-  pending: Float!
-  activated: Float!
-  desactivated: Float!
-  archived: Float!
-  paidEntrance: Float!
-  freeEntrance: Float!
-}
-
-input CategoryInput {
-  name: String!
+enum BookType {
+  Public
+  Private
 }
 
 input ClientFilterInput {
@@ -95,99 +37,19 @@ input ClientFilterInput {
   orderBy: OrderByInput
 }
 
-input CommentDto {
-  message: String!
-  destinataire: ID!
-  event: ID!
-}
-
-type CommentEntity {
-  id: ID!
-  message: String!
-  createdAt: DateTime!
-  sender: UserEntity!
-  destinataire: UserEntity!
-  event: EventEntity!
-}
-
 """
 The javascript `Date` as string. Type represents date and time as the ISO Date string.
 """
 scalar DateTime
 
-enum EventAccessType {
-  Uniq
-  Free
+input FetchBookCoverParam {
+  id: String!
 }
 
-input EventDto {
-  description: String
-  address: String
-  locationAccuracy: String
-  type: EventType
-  name: String
-  catchyPhrase: String
-  category: ID
-  startDate: DateTime
-  endDate: DateTime
-  expectedNumberOfPersons: Float
-  accessType: EventAccessType
-  keepContactWithParticipant: Boolean
-  paidEntrance: Boolean
-}
-
-type EventEntity {
-  _id: ID!
-  description: String
-  address: String
-  locationAccuracy: String
-  state: EventState
-  status: EventStatus
-  type: EventType
-  name: String
-  catchyPhrase: String
-  createdBy: UserEntity!
-  category: CategoryEntity!
-  startDate: DateTime
-  endDate: DateTime
-  expectedNumberOfPersons: Float
-  accessType: EventAccessType
-  keepContactWithParticipant: Boolean
-  paidEntrance: Boolean
-  priceIncludingCharges: Boolean
-  categoryCriteria: [String!]
-  purchasedTicketInvolveFreeTicket: TicketRequirements
-  tickets: [Ticket!]
-  reservation: ReservationRequirements
-  poster: ImageSizes
-}
-
-type EventsEntity {
-  recordsLength: Float!
-  totalRecords: Float!
-  offset: Float!
-  limit: Float!
-  pages: Float!
-  currentPage: Float!
-  records: [EventEntity!]!
-}
-
-enum EventState {
-  ACTIVATED
-  DESACTIVATED
-  ARCHIVED
-}
-
-enum EventStatus {
-  VALIDATED
-  REFUSED
-  PENDING
-  BLOCKED
-}
-
-enum EventType {
-  Private
-  Public
+input FinalizeResetPasswordInput {
+  newPassword: String!
+  token: String!
+  validationCode: Float!
 }
 
 type ImageSizes {
@@ -196,36 +58,18 @@ type ImageSizes {
   lg: ID
 }
 
-enum InternalRole {
-  STRATEGIC
-  FINANCE
-  MARKETING
-  STANDARD
-}
-
-input LoginDto {
+input LoginInput {
+  """must be in email format"""
   email: String!
   password: String!
 }
 
 type Mutation {
-  createComment(commentInput: CommentDto!): CommentEntity!
-  changeEventState(state: EventState!, eventId: ID!): EventEntity!
-  changeEventStatus(status: EventStatus!, eventId: ID!): EventEntity!
-  createTicket(ticketDto: TicketDto!, eventId: ID!): EventEntity!
-  removeTicket(ticketId: ID!, eventId: ID!): EventEntity!
-  updateEvent(eventInput: EventDto!, eventId: ID!): EventEntity!
-  updateCurrentUserPassword(newPassword: String!, oldPassword: String!): Boolean!
-  closeAccount(userId: ID): Boolean!
-  activateAccount(userId: ID!): Boolean!
-  createCard(cardNumber: String!): CardEntity!
-  lostCard(emergencyCard: String, cardNumber: String!): CardEntity!
-  register(registerInput: RegisterDto!): SessionEntity!
-  updatePassword(updatePasswordDto: UpdatePasswordDto!): Boolean!
-  createCategory(categoryInput: CategoryInput!): CategoryEntity!
-  createPromotionalCode(promotionalCodeDto: PromotionalCodeDto!): PromotionalCodeEntity!
-  createAccessCode(accessCodeDto: AccessCodeDto!): AccessCodeEntity!
-  createReservation(reservationInput: ReservationInput!): Boolean!
+  register(registerInput: UserInput!): Session!
+  updatePassword(FinalizeResetPasswordInput: FinalizeResetPasswordInput!): Boolean!
+  createBook(bookInput: BookInput!): Book!
+  updateBook(bookInput: UpdateBookInput!, bookId: ID!): Book!
+  removeBook(bookId: ID!): Boolean!
 }
 
 """OrderBy direction"""
@@ -239,255 +83,60 @@ input OrderByInput {
   direction: OrderByDirection!
 }
 
-type Paging {
-  recordsLength: Float!
-  totalRecords: Float!
-  offset: Float!
-  limit: Float!
-  pages: Float!
-  currentPage: Float!
-}
-
-input PreferenceDto {
-  category: ID!
-  startDate: DateTime!
-  endDate: DateTime!
-  city: String!
-  region: String!
-  price: Float!
-}
-
-input PromotionalCodeDto {
-  eventId: ID!
-  impact: PromotionalCodeImpact!
-  privateName: String!
-  numberOfGeneratedCodes: Float!
-  tickets: [ID!]!
-  reductionEffect: ReductionEffectDto!
-  publicName: String!
-  usableNumberOfTimes: Float!
-  startDate: DateTime!
-  endDate: DateTime!
-}
-
-type PromotionalCodeEntity {
-  _id: String!
-  eventId: ID!
-  event: EventEntity!
-  impact: PromotionalCodeImpact!
-  privateName: String!
-  numberOfGeneratedCodes: Float!
-  tickets: [Ticket!]!
-  reductionEffect: ReductionEffectEntity!
-  publicName: String!
-  usableNumberOfTimes: Float!
-  startDate: DateTime!
-  endDate: DateTime!
-}
-
-enum PromotionalCodeImpact {
-  MASK_TICKETS
-  APPLY_REDUCTION
-}
-
-type PromotionalCodesEntity {
-  recordsLength: Float!
-  totalRecords: Float!
-  offset: Float!
-  limit: Float!
-  pages: Float!
-  currentPage: Float!
-  records: [PromotionalCodeEntity!]!
-}
-
-type PubEntity {
-  _id: ID!
-  title: String!
-  object: String!
-  startDate: DateTime!
-  endDate: DateTime!
-  isUp: Boolean!
-  dependence: String!
-  attachment: ID!
-  order: Float!
-  createdAt: DateTime!
-}
-
 type Query {
-  fetchComments: [CommentEntity!]!
-  fetchClientComments: [CommentEntity!]!
-  fetchEvents: EventsEntity!
-  fetchEvent(eventId: ID!): EventEntity!
-  fetchRecentEvents: EventsEntity!
-  fetchCategoryEvents(categoryId: ID!): EventsEntity!
-  fetchPreferences(preferenceInput: PreferenceDto!): [EventEntity!]!
-  fetchCurrentUser: UserEntity!
-  fetchAdmins: UsersEntity!
-  fetchOrganizers: UsersEntity!
-  fetchClients: UsersEntity!
-  fetchCards: CardsEntity!
-  fetchMyCards: [CardEntity!]!
-  fetchPubs: [PubEntity!]!
-  fetchUpPubs: [PubEntity!]!
-  fetchNoUpPubs: [PubEntity!]!
-  fetchActivePubs: [PubEntity!]!
-  fetchNextPubs: [PubEntity!]!
-  fetchUpActivePubs: [PubEntity!]!
-  fetchNoUpActivePubs: [PubEntity!]!
-  fetchNextUpPubs: [PubEntity!]!
-  fetchNextNoUpPubs: [PubEntity!]!
-  login(loginInput: LoginDto!): SessionEntity!
+  fetchCurrentUser(userId: ID!): User!
+  login(loginInput: LoginInput!): Session!
   resetPassword(email: String!): String!
-  fetchCategories: CategoriesEntity!
-  fetchPromotionalCodes: PromotionalCodesEntity!
-  fetchAccessCodes: AccessCodesEntity!
-  fetchMyReservations: [ReservationEntity!]!
-  fetchEventReservations(eventId: ID!): [ReservationEntity!]!
+  fetchBook(bookId: ID!): Book!
+  fetchBooks(clientFilter: ClientFilterInput!): [Book!]!
 }
 
-input ReductionEffectDto {
-  inPercentage: Boolean!
-  reduction: Float!
-}
-
-type ReductionEffectEntity {
-  inPercentage: Boolean!
-  reduction: Float!
-}
-
-input RegisterDto {
-  phoneNumber: String!
-  lastName: String!
-  firstName: String!
-  password: String!
-  email: String!
-  birthDate: DateTime!
-  gender: String!
-  city: String!
-  district: String!
-}
-
-type ReservationEntity {
-  _id: ID!
-  card: CardEntity!
-  ticket: Ticket!
-  client: UserEntity!
-  state: ReservationState!
-  event: EventEntity!
-  createdAt: DateTime!
-}
-
-input ReservationInput {
-  card: String
-  ticket: String
-  cardForOther: String
-  ticketForOther: String
-}
-
-type ReservationRequirements {
-  allowed: Boolean!
-  payWhenReservation: Boolean!
-  reservationFeeRefundable: Boolean!
-  percentageToPay: Float!
-  limiteDateConfirmation: DateTime!
-}
-
-enum ReservationState {
-  ACCEPTED
-  REFUSED
-  PENDING
-}
-
-type SessionEntity {
+type ResetPasswordCredentials {
   token: String!
-  user: UserEntity!
+  validationCode: Float!
 }
 
-type Ticket {
-  _id: ID!
-  name: String!
-  categoryCriteria: String!
-  quantity: Float!
-  price: Float!
+type Session {
+  token: String!
+  user: User!
 }
 
-input TicketDto {
-  name: String!
-  categoryCriteria: String!
-  quantity: Float!
-  price: Float!
-}
-
-type TicketRequirements {
-  purchasedTicketInvolveFreeTicket: Boolean!
-  purchasedTickets: TicketRequirementsQuantity!
-  offeredTickets: TicketRequirementsQuantity!
-}
-
-type TicketRequirementsQuantity {
-  quantity: Float!
-  categoryCriteria: String!
-}
-
-input UpdatePasswordDto {
-  password: String!
-  resetToken: String!
-  resetCode: Float!
-}
-
-input UserDto {
-  countryCode: String!
-  role: UserRoles!
-  gender: UserGender!
-  birthDate: DateTime!
-  phoneNumber: String!
-  lastName: String!
-  firstName: String!
+input StartResetPasswordInput {
+  """must be in email format"""
   email: String!
-  internalRole: InternalRole!
 }
 
-type UserEntity {
-  _id: ID!
-  countryCode: String
-  role: UserRoles!
-  internalRole: InternalRole
-  gender: UserGender
-  birthDate: DateTime
-  phoneNumber: String
-  lastName: String!
-  firstName: String!
-  password: String!
+input UpdateBookInput {
+  description: String
+  title: String!
+  author: String!
+  publicationDate: DateTime
+  type: BookType!
+}
+
+input UpdateUserInput {
+  id: String!
+}
+
+type User {
+  id: ID!
   email: String!
-  avatar: ImageSizes
-  city: String
-  district: String
-  cards: [CardEntity!]!
-  state: UserState!
+  firstName: String!
+  lastName: String!
 }
 
-enum UserGender {
-  MALE
-  FEMALE
-}
+input UserInput {
+  """must be in email format"""
+  email: String!
 
-enum UserRoles {
-  USER
-  ADMIN
-  ORGANIZER
-}
+  """must hold a value with length greater or equal to 1"""
+  firstName: String!
 
-type UsersEntity {
-  recordsLength: Float!
-  totalRecords: Float!
-  offset: Float!
-  limit: Float!
-  pages: Float!
-  currentPage: Float!
-  records: [UserEntity!]!
-}
+  """must hold a value with length greater or equal to 1"""
+  lastName: String!
 
-enum UserState {
-  CLOSED
-  FONCTIONNAL
+  """
+  must have 8 characters including at least 1 uppercase, 1 lowercase and 1 special character including numbers
+  """
+  password: String!
 }

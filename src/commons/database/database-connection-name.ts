@@ -1,1 +1,1 @@
-export const databaseConnectionName: string = "clavem-database-connection";
+export const databaseConnectionName: string = "coding4tomorrow-database-connection";
